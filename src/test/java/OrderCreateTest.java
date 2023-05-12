@@ -1,12 +1,17 @@
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import model.Order;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import request.OrderClient;
+
 import java.util.List;
+
+import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(Parameterized.class)
 public class OrderCreateTest {
@@ -36,7 +41,7 @@ public class OrderCreateTest {
     }
 
     @Parameterized.Parameters
-    public static Object[][]getData(){
+    public static Object[][] getData() {
         return new Object[][]{
                 {"Сергей", "Иванов", "Москва", 10, "+79803456892", 3, "2023-05-09", "комент", List.of("GREY")},
                 {"Николай", "Смирнов", "Москва, Тверская 1", 23, "+79803446892", 1, "2023-05-09", "комент2", List.of("BLACK")},
@@ -46,7 +51,7 @@ public class OrderCreateTest {
     }
 
     @Before
-    public void setUp(){
+    public void setUp() {
         RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru";
         order = new Order(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
         orderClient = new OrderClient();
@@ -55,14 +60,16 @@ public class OrderCreateTest {
 
     @Test
     @DisplayName("Создание заказа")
-    public void createOrder(){
+    public void createOrder() {
         Response responseOrder = orderClient.createOrder(order);
         responseOrder.then().statusCode(201);
         orderTrack = responseOrder.then().extract().path("track");
+        responseOrder.then().assertThat().body("track", equalTo(orderTrack));
         System.out.println(orderTrack);
     }
+
     @After
-    public void cancelOrder(){
+    public void cancelOrder() {
         orderClient.cancelOrder(orderTrack);
     }
 }

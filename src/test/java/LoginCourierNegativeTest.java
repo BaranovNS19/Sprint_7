@@ -1,11 +1,12 @@
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import model.Courier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
+import request.CourierClient;
 import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(Parameterized.class)
@@ -50,8 +51,7 @@ public class LoginCourierNegativeTest {
     @DisplayName("Логин курьера негативные кейсы")
     public void loginCourier(){
         Response responseLogin = courierClient.loginCourier(courier);
-        responseLogin.then().assertThat().body(jsonKey, equalTo(expectedResponse))
-                .and()
-                .statusCode(statusCode);
+        responseLogin.then().statusCode(statusCode).assertThat().body(jsonKey, equalTo(expectedResponse));
+
     }
 }
